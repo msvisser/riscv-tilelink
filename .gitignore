@@ -1,0 +1,10 @@
+__pycache__/
+.env/
+.idea/
+build/
+*.bin
+*.v
+*.il
+*.vcd
+*.o
+*.elf

@@ -1,7 +1,8 @@
 from nmigen import *
 from nmigen.utils import log2_int
 from nmigen_soc.memory import MemoryMap
-import tilelink
+
+from riscv_tilelink import tilelink
 
 
 class TilelinkSimulationPeripheral(Elaboratable):
@@ -9,7 +10,7 @@ class TilelinkSimulationPeripheral(Elaboratable):
         self.data_width = data_width
         self.source_id_width = source_id_width
 
-        self.bus = tilelink.Interface(addr_width=log2_int(8*data_width), data_width=data_width, source_id_width=source_id_width, sink_id_width=0)
+        self.bus = tilelink.Interface(addr_width=log2_int(8 * data_width), data_width=data_width, source_id_width=source_id_width, sink_id_width=0)
         memory_map = MemoryMap(addr_width=log2_int(8*data_width), data_width=8)
         memory_map.add_resource(self, name="simulation", size=8*data_width)
         self.bus.memory_map = memory_map

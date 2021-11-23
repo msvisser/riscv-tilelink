@@ -1,8 +1,8 @@
 from nmigen import *
 from nmigen.lib.scheduler import RoundRobin
 from nmigen.utils import log2_int
-from nmigen_soc.memory import MemoryMap
-import tilelink
+
+from riscv_tilelink import tilelink
 
 
 class TilelinkArbiter(Elaboratable):

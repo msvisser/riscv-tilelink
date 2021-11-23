@@ -1,8 +1,9 @@
 import struct
 from nmigen import *
-from nmigen.utils import log2_int
 from nmigen_soc.memory import MemoryMap
-import tilelink
+
+from riscv_tilelink import tilelink
+
 
 class TilelinkMemory(Elaboratable):
     counter = 0

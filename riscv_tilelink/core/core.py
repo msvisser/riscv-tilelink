@@ -169,26 +169,16 @@ class RISCVCore(Elaboratable):
         csr_list.append(CSR.single(number=0xc82, value=csr_instructions_retired[32:64]))
 
         """
-        Address Generation
-        """
-        a_arbitration = Arbitration(name='a_arbitration')
-        a_arbitration.elaborate(m)
-
-        a_program_counter = Signal(unsigned(32))
-        with m.If(a_arbitration.firing):
-            m.d.sync += a_program_counter.eq(a_program_counter + 4)
-
-        """
         Instruction Fetch
         """
         # Arbitration
         f_arbitration = Arbitration(name='f_arbitration')
-        f_arbitration.elaborate(m, a_arbitration)
+        f_arbitration.elaborate(m)
 
         # Program counter
         f_program_counter = Signal(unsigned(32))
-        with m.If(f_arbitration.moving):
-            m.d.sync += f_program_counter.eq(a_program_counter)
+        with m.If(f_arbitration.firing):
+            m.d.sync += f_program_counter.eq(f_program_counter + 4)
 
         # Create instruction request
         m.d.comb += [
@@ -454,12 +444,11 @@ class RISCVCore(Elaboratable):
         with m.If(m_arbitration.firing & ~m_control.exception_pending & m_branch_taken):
             with m.If(m_branch_target[1] == 0):
                 m.d.comb += [
-                    a_arbitration.remove.eq(1),
                     f_arbitration.remove.eq(1),
                     d_arbitration.remove.eq(1),
                     x_arbitration.remove.eq(1),
                 ]
-                m.d.sync += a_program_counter.eq(m_branch_target)
+                m.d.sync += f_program_counter.eq(m_branch_target)
             with m.Else():
                 # Raise instruction misaligned exception
                 m.d.comb += [
@@ -610,28 +599,26 @@ class RISCVCore(Elaboratable):
         # Handle Interrupt return
         with m.If(w_arbitration.firing & w_control.mret):
             m.d.comb += [
-                a_arbitration.remove.eq(1),
                 f_arbitration.remove.eq(1),
                 d_arbitration.remove.eq(1),
                 x_arbitration.remove.eq(1),
                 m_arbitration.remove.eq(1),
             ]
             m.d.sync += [
-                a_program_counter.eq(csr_mepc),
+                f_program_counter.eq(csr_mepc),
                 csr_mstatus_mie.eq(csr_mstatus_mpie),
             ]
 
         # Handler Exception entry
         with m.If(w_arbitration.firing & w_control.exception_pending):
             m.d.comb += [
-                a_arbitration.remove.eq(1),
                 f_arbitration.remove.eq(1),
                 d_arbitration.remove.eq(1),
                 x_arbitration.remove.eq(1),
                 m_arbitration.remove.eq(1),
             ]
             m.d.sync += [
-                a_program_counter.eq(Cat(C(0, 2), csr_mtvec_base)),
+                f_program_counter.eq(Cat(C(0, 2), csr_mtvec_base)),
                 csr_mcause_code.eq(w_control.exception_code),
                 csr_mcause_interrupt.eq(0),
                 csr_mepc.eq(w_program_counter),
@@ -646,14 +633,13 @@ class RISCVCore(Elaboratable):
         w_interrupt_pending = w_software_interrupt_pending | w_timer_interrupt_pending | w_external_interrupt_pending
         with m.If(w_interrupt_pending & csr_mstatus_mie):
             m.d.comb += [
-                a_arbitration.remove.eq(1),
                 f_arbitration.remove.eq(1),
                 d_arbitration.remove.eq(1),
                 x_arbitration.remove.eq(1),
                 m_arbitration.remove.eq(1),
             ]
             m.d.sync += [
-                a_program_counter.eq(Cat(C(0, 2), csr_mtvec_base)),
+                f_program_counter.eq(Cat(C(0, 2), csr_mtvec_base)),
                 csr_mcause_interrupt.eq(1),
                 csr_mstatus_mpie.eq(csr_mstatus_mie),
                 csr_mstatus_mie.eq(0),
@@ -672,10 +658,8 @@ class RISCVCore(Elaboratable):
                 m.d.sync += csr_mepc.eq(x_program_counter)
             with m.Elif(d_arbitration.valid):
                 m.d.sync += csr_mepc.eq(d_program_counter)
-            with m.Elif(f_arbitration.valid):
-                m.d.sync += csr_mepc.eq(f_program_counter)
             with m.Else():
-                m.d.sync += csr_mepc.eq(a_program_counter)
+                m.d.sync += csr_mepc.eq(f_program_counter)
 
         """
         Hazard detection and forwarding logic

@@ -1,9 +1,9 @@
 from nmigen import *
-from nmigen.hdl import mem
 from nmigen.utils import log2_int
 from nmigen_soc.memory import MemoryMap
 from nmigen_stdio.serial import AsyncSerialTX
-import tilelink
+
+from riscv_tilelink import tilelink
 
 
 class TilelinkUART(Elaboratable):
@@ -11,7 +11,7 @@ class TilelinkUART(Elaboratable):
         self.data_width = data_width
         self.source_id_width = source_id_width
 
-        self.bus = tilelink.Interface(addr_width=log2_int(2*data_width), data_width=data_width, source_id_width=source_id_width, sink_id_width=0)
+        self.bus = tilelink.Interface(addr_width=log2_int(2 * data_width), data_width=data_width, source_id_width=source_id_width, sink_id_width=0)
         memory_map = MemoryMap(addr_width=log2_int(2*data_width), data_width=8)
         memory_map.add_resource(self, name="uart", size=2*data_width)
         self.bus.memory_map = memory_map

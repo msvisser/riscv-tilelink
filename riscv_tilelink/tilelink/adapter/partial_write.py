@@ -1,8 +1,6 @@
 from nmigen import *
-from nmigen.utils import log2_int
-from nmigen_soc.memory import MemoryMap
-import tilelink
-from tilelink.bus import ChannelAOpcode, ChannelDOpcode
+from riscv_tilelink import tilelink
+from riscv_tilelink.tilelink.bus import ChannelAOpcode, ChannelDOpcode
 
 class TilelinkPartialWriteAdapter(Elaboratable):
     def __init__(self, addr_width, data_width=4, source_id_width=0):

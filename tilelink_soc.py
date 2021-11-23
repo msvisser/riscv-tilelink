@@ -2,11 +2,11 @@ from nmigen import *
 from nmigen.back import rtlil, cxxrtl, verilog
 from nmigen.sim import Simulator, Passive
 from nmigen.cli import main_parser
-import tilelink
-from tilelink import TilelinkArbiter, TilelinkDecoder
-from tilelink.peripheral import TilelinkMemory, TilelinkSimulationPeripheral
-from tilelink.master import TilelinkInstructionMaster, TilelinkDataMaster
-from core import RISCVCore
+from riscv_tilelink import tilelink
+from riscv_tilelink.tilelink import TilelinkArbiter, TilelinkDecoder
+from riscv_tilelink.tilelink.peripheral import TilelinkMemory, TilelinkSimulationPeripheral
+from riscv_tilelink.tilelink.master import TilelinkInstructionMaster, TilelinkDataMaster
+from riscv_tilelink.core import RISCVCore
 
 
 class TilelinkSOC(Elaboratable):

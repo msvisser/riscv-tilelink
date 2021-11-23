@@ -1,8 +1,8 @@
 from enum import Enum
 from nmigen import *
 from nmigen.utils import log2_int
-import tilelink
-from core import InstructionStreamRecord
+from riscv_tilelink import tilelink
+from riscv_tilelink.core import InstructionStreamRecord
 
 
 class RequestState(Enum):

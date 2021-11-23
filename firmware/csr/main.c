@@ -12,7 +12,7 @@ volatile uint32_t * const io_time_low = (volatile uint32_t *)0x80000008;
 volatile uint32_t * const io_time_high = (volatile uint32_t *)0x8000000c;
 volatile uint32_t * const io_interrupt = (volatile uint32_t *)0x80000010;
 
-static uint8_t hex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+uint8_t __attribute__((section(".data"))) hex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 static void hex_print(uint32_t x) {
     *io_out = hex[(x >> 28) & 0xf];

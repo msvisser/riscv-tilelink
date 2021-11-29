@@ -1,5 +1,5 @@
 .section .text.start
-.align 2
+.balign 4
 
 .global _start
 _start:
@@ -38,7 +38,7 @@ _start:
 
 .L_halt_simulator:
     /* Tell the simulator to halt the processor */
-    la      t0, 0x80000000
+    li      t0, 0x80000000
     li      t1, 1
     sw      t1, 4(t0)
 .L_end_loop:

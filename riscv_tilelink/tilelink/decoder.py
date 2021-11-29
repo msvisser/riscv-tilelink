@@ -68,18 +68,7 @@ class TilelinkDecoder(Elaboratable):
                 sub_bus = self._subs[sub_map]
                 m.d.comb += sub_bus.a.valid.eq(0)
                 with m.Case(sub_pat):
-                    m.d.comb += [
-                        sub_bus.a.opcode.eq(self.bus.a.opcode),
-                        sub_bus.a.param.eq(self.bus.a.param),
-                        sub_bus.a.size.eq(self.bus.a.size),
-                        sub_bus.a.source.eq(self.bus.a.source),
-                        sub_bus.a.address.eq(self.bus.a.address),
-                        sub_bus.a.mask.eq(self.bus.a.mask),
-                        sub_bus.a.data.eq(self.bus.a.data),
-                        sub_bus.a.corrupt.eq(self.bus.a.corrupt),
-                        sub_bus.a.valid.eq(self.bus.a.valid),
-                        self.bus.a.ready.eq(sub_bus.a.ready),
-                    ]
+                    m.d.comb += self.bus.a.connect(sub_bus.a)
 
         # Create a round robin arbiter
         m.submodules.rr = rr = RoundRobin(count=len(self._subs))
@@ -90,18 +79,7 @@ class TilelinkDecoder(Elaboratable):
         for i, sub_bus in enumerate(self._subs.values()):
             m.d.comb += sub_bus.d.ready.eq(0)
             with m.If(rr.grant[i]):
-                m.d.comb += [
-                    self.bus.d.opcode.eq(sub_bus.d.opcode),
-                    self.bus.d.param.eq(sub_bus.d.param),
-                    self.bus.d.size.eq(sub_bus.d.size),
-                    self.bus.d.source.eq(sub_bus.d.source),
-                    self.bus.d.sink.eq(sub_bus.d.sink),
-                    self.bus.d.denied.eq(sub_bus.d.denied),
-                    self.bus.d.corrupt.eq(sub_bus.d.corrupt),
-                    self.bus.d.data.eq(sub_bus.d.data),
-                    self.bus.d.valid.eq(sub_bus.d.valid),
-                    sub_bus.d.ready.eq(self.bus.d.ready),
-                ]
-
+                # Note the order is flipped here, because the FANIN/FANOUT settings are set for the complete bus
+                m.d.comb += self.bus.d.connect(sub_bus.d)
 
         return m

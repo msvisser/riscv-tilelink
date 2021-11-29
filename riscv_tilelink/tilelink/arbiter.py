@@ -46,16 +46,8 @@ class TilelinkArbiter(Elaboratable):
                 # Make sure the original source length is correct
                 original_source = master.a.source | C(0, self.source_id_in_width)
                 m.d.comb += [
-                    self.bus.a.opcode.eq(master.a.opcode),
-                    self.bus.a.param.eq(master.a.param),
-                    self.bus.a.size.eq(master.a.size),
+                    master.a.connect(self.bus.a),
                     self.bus.a.source.eq(Cat(original_source, C(i, self.source_id_extra_width))),
-                    self.bus.a.address.eq(master.a.address),
-                    self.bus.a.mask.eq(master.a.mask),
-                    self.bus.a.data.eq(master.a.data),
-                    self.bus.a.corrupt.eq(master.a.corrupt),
-                    self.bus.a.valid.eq(master.a.valid),
-                    master.a.ready.eq(self.bus.a.ready),
                 ]
 
         # Route responses on channel D based on the top part of the source
@@ -64,17 +56,7 @@ class TilelinkArbiter(Elaboratable):
         for i, master in enumerate(self.masters):
             m.d.comb += master.d.valid.eq(0)
             with m.If(d_selector == i):
-                m.d.comb += [
-                    master.d.opcode.eq(self.bus.d.opcode),
-                    master.d.param.eq(self.bus.d.param),
-                    master.d.size.eq(self.bus.d.size),
-                    master.d.source.eq(self.bus.d.source),
-                    master.d.sink.eq(self.bus.d.sink),
-                    master.d.denied.eq(self.bus.d.denied),
-                    master.d.corrupt.eq(self.bus.d.corrupt),
-                    master.d.data.eq(self.bus.d.data),
-                    master.d.valid.eq(self.bus.d.valid),
-                    self.bus.d.ready.eq(master.d.ready),
-                ]
+                # Note the order is flipped here, because the FANIN/FANOUT settings are set for the complete bus
+                m.d.comb += master.d.connect(self.bus.d)
 
         return m

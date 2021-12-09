@@ -17,7 +17,7 @@ class TilelinkSimulationPeripheral(Elaboratable):
 
         self.output_valid = Signal()
         self.output = Signal(unsigned(8))
-        self.halt_simulator = Signal()
+        self.halt_simulator = Signal(unsigned(6))
 
         self.external_interrupt = Signal()
 

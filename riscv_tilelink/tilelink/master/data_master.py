@@ -41,6 +41,7 @@ class TilelinkDataMaster(Elaboratable):
             ('size', self.bus.size_bits),
             ('unsigned', 1),
             ('addr_low', self.bus.addr_local_width),
+            ('corrupt', 1),
         ]
         requests_state = Array(Record(layout) for _ in range(self.max_outstanding))
 
@@ -119,6 +120,7 @@ class TilelinkDataMaster(Elaboratable):
         m.d.comb += [
             self.data_stream.rsp_valid.eq(can_read),
             self.data_stream.rsp_data.eq(requests_state[read_ptr].data),
+            self.data_stream.rsp_corrupt.eq(requests_state[read_ptr].corrupt),
         ]
 
         # When the response is accepted the request state is set to idle and
@@ -167,12 +169,14 @@ class TilelinkDataMaster(Elaboratable):
                 m.d.comb += [
                     self.data_stream.rsp_valid.eq(1),
                     self.data_stream.rsp_data.eq(read_data),
+                    self.data_stream.rsp_corrupt.eq(self.bus.d.corrupt),
                 ]
                 # If the response channel is not ready, store the result anyway
                 with m.If(~self.data_stream.rsp_ready):
                     m.d.sync += [
                         requests_state[self.bus.d.source].state.eq(RequestState.VALID),
                         requests_state[self.bus.d.source].data.eq(read_data),
+                        requests_state[self.bus.d.source].corrupt.eq(self.bus.d.corrupt),
                     ]
             with m.Else():
                 # Out-of-order messages are always stored, since the response
@@ -180,6 +184,7 @@ class TilelinkDataMaster(Elaboratable):
                 m.d.sync += [
                     requests_state[self.bus.d.source].state.eq(RequestState.VALID),
                     requests_state[self.bus.d.source].data.eq(read_data),
+                    requests_state[self.bus.d.source].corrupt.eq(self.bus.d.corrupt),
                 ]
 
         return m

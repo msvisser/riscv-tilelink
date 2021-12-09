@@ -34,6 +34,7 @@ class DataStreamRecord(Record):
             ('req_ready', 1, Direction.FANIN),
 
             ('rsp_data', 32, Direction.FANIN),
+            ('rsp_corrupt', 1, Direction.FANIN),
             ('rsp_valid', 1, Direction.FANIN),
             ('rsp_ready', 1, Direction.FANOUT),
         ])

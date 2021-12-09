@@ -573,6 +573,20 @@ class RISCVCore(Elaboratable):
             w_arbitration.halted_by_self.eq(accepting_response & ~self.data_stream.rsp_valid),
         ]
 
+        # Extra exception lines for memory operation exceptions
+        w_exception_pending = Signal()
+        w_exception_code = Signal(ExceptionCode)
+        m.d.comb += [
+            w_exception_pending.eq(w_control.exception_pending),
+            w_exception_code.eq(w_control.exception_code),
+        ]
+
+        with m.If(w_control.mem_enable & self.data_stream.rsp_corrupt):
+            m.d.comb += [
+                w_exception_pending.eq(1),
+                w_exception_code.eq(ExceptionCode.LOAD_ACCESS_FAULT),
+            ]
+
         # Determine the data to write to the register file
         w_write_data = Signal(unsigned(32))
         with m.Switch(w_control.writeback_select):
@@ -593,7 +607,7 @@ class RISCVCore(Elaboratable):
         m.d.comb += [
             w_write_port.addr.eq(w_control.rd),
             w_write_port.data.eq(w_write_data),
-            w_write_port.en.eq(w_arbitration.firing & ~w_control.exception_pending & w_control.register_write),
+            w_write_port.en.eq(w_arbitration.firing & ~w_exception_pending & w_control.register_write),
         ]
 
         # Handle Interrupt return
@@ -610,7 +624,7 @@ class RISCVCore(Elaboratable):
             ]
 
         # Handler Exception entry
-        with m.If(w_arbitration.firing & w_control.exception_pending):
+        with m.If(w_arbitration.firing & w_exception_pending):
             m.d.comb += [
                 f_arbitration.remove.eq(1),
                 d_arbitration.remove.eq(1),
@@ -619,7 +633,7 @@ class RISCVCore(Elaboratable):
             ]
             m.d.sync += [
                 f_program_counter.eq(Cat(C(0, 2), csr_mtvec_base)),
-                csr_mcause_code.eq(w_control.exception_code),
+                csr_mcause_code.eq(w_exception_code),
                 csr_mcause_interrupt.eq(0),
                 csr_mepc.eq(w_program_counter),
                 csr_mstatus_mpie.eq(csr_mstatus_mie),

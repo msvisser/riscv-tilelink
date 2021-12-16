@@ -13,8 +13,8 @@ class TilelinkSOC(Elaboratable):
     def __init__(self, firmware):
         self.firmware = firmware
 
-        self.output = Signal(unsigned(8))
-        self.output_valid = Signal()
+        self.sim_output = Signal(unsigned(8))
+        self.sim_output_valid = Signal()
         self.halt_simulator = Signal()
 
     def elaborate(self, platform):
@@ -51,8 +51,8 @@ class TilelinkSOC(Elaboratable):
 
         m.submodules.tl_periph = tl_periph = TilelinkSimulationPeripheral(source_id_width=tl_data_decoder.source_id_width)
         m.d.comb += [
-            self.output.eq(tl_periph.output),
-            self.output_valid.eq(tl_periph.output_valid),
+            self.sim_output.eq(tl_periph.sim_output),
+            self.sim_output_valid.eq(tl_periph.sim_output_valid),
             self.halt_simulator.eq(tl_periph.halt_simulator),
             core.external_interrupt.eq(tl_periph.external_interrupt),
         ]
@@ -127,9 +127,9 @@ if __name__ == "__main__":
             yield Passive()
             while True:
                 yield
-                output_valid = yield design.output_valid
+                output_valid = yield design.sim_output_valid
                 if output_valid:
-                    output_value = yield design.output
+                    output_value = yield design.sim_output
                     print(chr(output_value & 0xff), end='')
 
         def wait_for_halt_simulator():

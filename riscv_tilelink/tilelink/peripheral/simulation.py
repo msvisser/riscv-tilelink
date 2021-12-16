@@ -15,8 +15,8 @@ class TilelinkSimulationPeripheral(Elaboratable):
         memory_map.add_resource(self, name="simulation", size=8*data_width)
         self.bus.memory_map = memory_map
 
-        self.output_valid = Signal()
-        self.output = Signal(unsigned(8))
+        self.sim_output_valid = Signal()
+        self.sim_output = Signal(unsigned(8))
         self.halt_simulator = Signal(unsigned(6))
 
         self.external_interrupt = Signal()
@@ -25,7 +25,7 @@ class TilelinkSimulationPeripheral(Elaboratable):
         m = Module()
 
         # Automatically reset the register to zero
-        m.d.sync += self.output_valid.eq(False)
+        m.d.sync += self.sim_output_valid.eq(False)
 
         # Cycle counter
         cycle_count = Signal(unsigned(64))
@@ -40,8 +40,8 @@ class TilelinkSimulationPeripheral(Elaboratable):
                 with m.Switch(self.bus.a.address):
                     with m.Case(0):
                         m.d.sync += [
-                            self.output.word_select(i, 8).eq(self.bus.a.data.word_select(i, 8)),
-                            self.output_valid.eq(True),
+                            self.sim_output.word_select(i, 8).eq(self.bus.a.data.word_select(i, 8)),
+                            self.sim_output_valid.eq(True),
                         ]
                     with m.Case(4):
                         m.d.sync += self.halt_simulator.word_select(i, 8).eq(self.bus.a.data.word_select(i, 8))
@@ -64,7 +64,7 @@ class TilelinkSimulationPeripheral(Elaboratable):
             with m.Case(tilelink.ChannelAOpcode.Get):
                 with m.Switch(self.bus.a.address):
                     with m.Case(0):
-                        m.d.sync += self.bus.tilelink_access_ack_data(data=self.output, size=self.bus.a.size, source=self.bus.a.source)
+                        m.d.sync += self.bus.tilelink_access_ack_data(data=self.sim_output, size=self.bus.a.size, source=self.bus.a.source)
                     with m.Case(4):
                         m.d.sync += self.bus.tilelink_access_ack_data(data=self.halt_simulator, size=self.bus.a.size, source=self.bus.a.source)
                     with m.Case(8):

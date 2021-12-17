@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
 
     // Read the complete instruction memory from the file
     size_t i;
-    for (i = 0; i < top.memory_p_tl__rom_2e_memory.depth(); i++) {
+    for (i = 0; i < top.memory_p_tl__rom_2e_memory.depth; i++) {
         uint32_t data = 0;
         size_t j = 0;
         while (j < 4) {

@@ -3,11 +3,23 @@ from enum import Enum
 from nmigen import Record, Signal
 
 class ChannelAOpcode(Enum):
-    ...
+    PutFullData = 0
+    PutPartialData = 1
+    ArithmeticData = 2
+    LogicalData = 3
+    Get = 4
+    Intent = 5
+    AcquireBlock = 6
+    AcquirePerm = 7
 
 
 class ChannelDOpcode(Enum):
-    ...
+    AccessAck = 0
+    AccessAckData = 1
+    HintAck = 2
+    Grant = 4
+    GrantData = 5
+    ReleaseAck = 6
 
 
 class InterfaceA(Record):
@@ -42,3 +54,10 @@ class Interface(Record):
     def __init__(self, *, addr_width: int, data_width: int, source_id_width: int, sink_id_width: int, name: str = None):
         self.a: InterfaceA = ...
         self.d: InterfaceD = ...
+
+        self.addr_width: int = ...
+        self.data_width: int = ...
+        self.source_id_width: int = ...
+        self.sink_id_width: int = ...
+        self.addr_local_width: int = ...
+        self.size_bits: int = ...

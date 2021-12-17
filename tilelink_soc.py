@@ -83,7 +83,7 @@ if __name__ == "__main__":
     sys.setrecursionlimit(3000)
 
     design = TilelinkSOC(firmware="firmware/csr.bin")
-    ports = [design.output, design.output_valid, design.halt_simulator]
+    ports = [design.sim_output, design.sim_output_valid, design.halt_simulator]
     name = "top"
 
     parser = main_parser()

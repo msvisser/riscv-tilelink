@@ -130,8 +130,8 @@ int main(int argc, char *argv[]) {
         clk();
 
         // If the debug output port is valid, print an output character
-        if (top.p_output__valid.get<bool>()) {
-            char c = top.p_output.get<unsigned char>();
+        if (top.p_sim__output__valid.get<bool>()) {
+            char c = top.p_sim__output.get<unsigned char>();
             fmt::print("{}", c);
         }
 

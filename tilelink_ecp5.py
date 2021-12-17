@@ -36,7 +36,7 @@ class TilelinkSOCTop(Elaboratable):
 
         m.submodules.soc = soc = TilelinkSOC(firmware="firmware/csr.bin")
         led = platform.request('led', 0)
-        m.d.comb += led.eq(soc.output_valid)
+        m.d.comb += led.eq(soc.sim_output_valid)
 
         return m
 

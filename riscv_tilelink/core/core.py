@@ -467,7 +467,7 @@ class RISCVCore(Elaboratable):
         with m.Else():
             m.d.comb += m_memory_alignment_valid.eq(0)
 
-        with m.If(m_arbitration.valid & ~m_control.exception_pending & ~m_memory_alignment_valid):
+        with m.If(m_arbitration.valid & ~m_control.exception_pending & m_control.mem_enable & ~m_memory_alignment_valid):
             # Raise invalid memory alignment error
             m.d.comb += m_set_exception_pending.eq(1)
             with m.If(m_control.mem_we):

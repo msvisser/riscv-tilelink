@@ -43,4 +43,4 @@ class TilelinkSOCTop(Elaboratable):
 
 if __name__ == "__main__":
     from nmigen_boards.ulx3s import ULX3S_25F_Platform
-    ULX3S_25F_Platform().build(TilelinkSOCTop(), do_program=False)
+    ULX3S_25F_Platform().build(TilelinkSOCTop(), do_program=False, synth_opts='-abc9')

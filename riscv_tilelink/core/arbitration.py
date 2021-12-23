@@ -11,7 +11,7 @@ class ArbitrationState(Enum):
 
 
 class Arbitration(Record):
-    def __init__(self, *, name=None):
+    def __init__(self, *, name=None, fields=None, src_loc_at=0):
         layout = [
             ("valid", 1),
             ("halted", 1),
@@ -20,7 +20,7 @@ class Arbitration(Record):
             ("remove", 1),
             ("state", ArbitrationState),
         ]
-        super().__init__(layout, name=name)
+        super().__init__(layout, name=name, fields=fields, src_loc_at=src_loc_at + 1)
 
     def elaborate(self, m, prev_arbitration=None):
         m.d.comb += self.halted.eq(self.halted_by_self | self.halted_by_next)

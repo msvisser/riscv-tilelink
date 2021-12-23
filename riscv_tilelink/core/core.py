@@ -172,7 +172,7 @@ class RISCVCore(Elaboratable):
         Instruction Fetch
         """
         # Arbitration
-        f_arbitration = Arbitration(name='f_arbitration')
+        f_arbitration = Arbitration()
         f_arbitration.elaborate(m)
 
         # Program counter
@@ -195,7 +195,7 @@ class RISCVCore(Elaboratable):
         Instruction Decode
         """
         # Arbitration
-        d_arbitration = Arbitration(name='d_arbitration')
+        d_arbitration = Arbitration()
         d_arbitration.elaborate(m, f_arbitration)
         d_set_exception_pending = Signal()
         d_set_exception_code = Signal(unsigned(4))
@@ -272,7 +272,7 @@ class RISCVCore(Elaboratable):
         Execute
         """
         # Arbitration
-        x_arbitration = Arbitration(name='x_arbitration')
+        x_arbitration = Arbitration()
         x_arbitration.elaborate(m, d_arbitration)
 
         # Get the program counter, instruction and control signals
@@ -413,7 +413,7 @@ class RISCVCore(Elaboratable):
         Memory
         """
         # Arbitration
-        m_arbitration = Arbitration(name='m_arbitration')
+        m_arbitration = Arbitration()
         m_arbitration.elaborate(m, x_arbitration)
         m_set_exception_pending = Signal()
         m_set_exception_code = Signal(unsigned(4))
@@ -544,7 +544,7 @@ class RISCVCore(Elaboratable):
         Writeback
         """
         # Arbitration
-        w_arbitration = Arbitration(name='w_arbitration')
+        w_arbitration = Arbitration()
         w_arbitration.elaborate(m, m_arbitration)
 
         # Get the program counter, instruction, control signals and alu result

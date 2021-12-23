@@ -696,20 +696,18 @@ class RISCVCore(Elaboratable):
                 (m_arbitration, m_control, m_alu_result),
                 (w_arbitration, w_control, w_write_data),
             ]
-            with m.If(d_control.rs1 != 0):
-                for (arb, ctl, val) in reversed(stages):
-                    with m.If(arb.valid & ctl.register_write & (ctl.rd == d_control.rs1)):
-                        m.d.comb += [
-                            d_rs1_value_forwarded.eq(val),
-                            d_rs1_is_forwarded.eq(1),
-                        ]
-            with m.If(d_control.rs2 != 0):
-                for (arb, ctl, val) in reversed(stages):
-                    with m.If(arb.valid & ctl.register_write & (ctl.rd == d_control.rs2)):
-                        m.d.comb += [
-                            d_rs2_value_forwarded.eq(val),
-                            d_rs2_is_forwarded.eq(1),
-                        ]
+            for (arb, ctl, val) in reversed(stages):
+                with m.If(arb.valid & ctl.register_write & (ctl.rd == d_control.rs1)):
+                    m.d.comb += [
+                        d_rs1_value_forwarded.eq(val),
+                        d_rs1_is_forwarded.eq(1),
+                    ]
+            for (arb, ctl, val) in reversed(stages):
+                with m.If(arb.valid & ctl.register_write & (ctl.rd == d_control.rs2)):
+                    m.d.comb += [
+                        d_rs2_value_forwarded.eq(val),
+                        d_rs2_is_forwarded.eq(1),
+                    ]
 
         """
         Control and Status register updates

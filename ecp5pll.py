@@ -1,5 +1,5 @@
-from nmigen import *
-from nmigen.build import Platform
+from amaranth import *
+from amaranth.build import Platform
 
 __all__ = ["ECP5PLL"]
 

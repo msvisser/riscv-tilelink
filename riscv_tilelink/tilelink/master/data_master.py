@@ -1,6 +1,6 @@
 from enum import Enum
-from nmigen import *
-from nmigen.utils import log2_int
+from amaranth import *
+from amaranth.utils import log2_int
 
 from riscv_tilelink import tilelink
 from riscv_tilelink.core import DataStreamRecord

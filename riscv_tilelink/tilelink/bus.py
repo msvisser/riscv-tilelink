@@ -1,8 +1,8 @@
 from enum import Enum
-from nmigen import *
-from nmigen.hdl.rec import Direction
-from nmigen.utils import log2_int, bits_for
-from nmigen_soc.memory import MemoryMap
+from amaranth import *
+from amaranth.hdl.rec import Direction
+from amaranth.utils import log2_int, bits_for
+from amaranth_soc.memory import MemoryMap
 
 
 class ChannelAOpcode(Enum):

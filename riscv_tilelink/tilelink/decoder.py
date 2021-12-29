@@ -1,6 +1,6 @@
-from nmigen import *
-from nmigen.utils import log2_int
-from nmigen_soc.memory import MemoryMap
+from amaranth import *
+from amaranth.utils import log2_int
+from amaranth_soc.memory import MemoryMap
 
 from riscv_tilelink import tilelink
 

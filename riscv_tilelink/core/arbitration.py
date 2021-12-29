@@ -1,6 +1,6 @@
 from enum import Enum, unique
 
-from nmigen import *
+from amaranth import *
 
 
 @unique

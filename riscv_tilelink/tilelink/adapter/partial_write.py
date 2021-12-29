@@ -1,4 +1,4 @@
-from nmigen import *
+from amaranth import *
 from riscv_tilelink import tilelink
 from riscv_tilelink.tilelink.bus import ChannelAOpcode, ChannelDOpcode
 

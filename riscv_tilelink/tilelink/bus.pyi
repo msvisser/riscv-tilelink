@@ -1,6 +1,6 @@
 from enum import Enum
 
-from nmigen import Record, Signal
+from amaranth import Record, Signal
 
 class ChannelAOpcode(Enum):
     PutFullData = 0

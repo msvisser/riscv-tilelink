@@ -1,6 +1,6 @@
 from enum import Enum
 
-from nmigen import Record, Signal, Elaboratable
+from amaranth import Record, Signal, Elaboratable
 
 
 class ALUOperation(Enum):

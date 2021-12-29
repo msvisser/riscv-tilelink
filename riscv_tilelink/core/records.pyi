@@ -1,4 +1,4 @@
-from nmigen import Signal, Record
+from amaranth import Signal, Record
 
 
 class InstructionStreamRecord(Record):

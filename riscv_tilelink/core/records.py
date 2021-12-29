@@ -1,4 +1,4 @@
-from nmigen.hdl.rec import Direction, Record
+from amaranth.hdl.rec import Direction, Record
 
 
 class InstructionStreamRecord(Record):

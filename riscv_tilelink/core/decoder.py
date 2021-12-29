@@ -1,6 +1,6 @@
 from enum import Enum
 
-from nmigen import *
+from amaranth import *
 
 from .isa import Opcode, Funct3Branch, Funct7, Funct3CSR, Funct3CSRPattern, ExceptionCode
 

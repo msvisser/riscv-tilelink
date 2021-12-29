@@ -1,6 +1,6 @@
-from nmigen import *
-from nmigen.lib.scheduler import RoundRobin
-from nmigen.utils import log2_int
+from amaranth import *
+from amaranth.lib.scheduler import RoundRobin
+from amaranth.utils import log2_int
 
 from riscv_tilelink import tilelink
 

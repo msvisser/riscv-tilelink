@@ -1,7 +1,7 @@
-from nmigen import *
-from nmigen.utils import log2_int
-from nmigen_soc.memory import MemoryMap
-from nmigen_stdio.serial import AsyncSerialTX
+from amaranth import *
+from amaranth.utils import log2_int
+from amaranth_soc.memory import MemoryMap
+from amaranth_stdio.serial import AsyncSerialTX
 
 from riscv_tilelink import tilelink
 

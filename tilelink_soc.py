@@ -1,7 +1,7 @@
-from nmigen import *
-from nmigen.back import rtlil, cxxrtl, verilog
-from nmigen.sim import Simulator, Passive
-from nmigen.cli import main_parser
+from amaranth import *
+from amaranth.back import rtlil, cxxrtl, verilog
+from amaranth.sim import Simulator, Passive
+from amaranth.cli import main_parser
 from riscv_tilelink import tilelink
 from riscv_tilelink.tilelink import TilelinkArbiter, TilelinkDecoder
 from riscv_tilelink.tilelink.peripheral import TilelinkMemory, TilelinkSimulationPeripheral

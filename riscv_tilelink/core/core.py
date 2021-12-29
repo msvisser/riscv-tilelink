@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from nmigen import *
+from amaranth import *
 
 from .arbitration import Arbitration
 from .isa import Funct3Mul, ExceptionCode

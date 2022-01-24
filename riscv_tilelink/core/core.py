@@ -366,29 +366,31 @@ class RISCVCore(Elaboratable):
                 m.d.comb += x_alu_result.eq(x_alu_left & x_alu_right)
 
         # Do the multiplication calculations
-        x_muldiv_intermediate = Signal(unsigned(64))
-        x_muldiv_result = Signal(unsigned(32))
-        with m.Switch(x_control.alu_operation):
-            with m.Case(Funct3Mul.MUL):
-                m.d.comb += [
-                    x_muldiv_intermediate.eq(x_rs1_value * x_rs2_value),
-                    x_muldiv_result.eq(x_muldiv_intermediate[0:32])
-                ]
-            with m.Case(Funct3Mul.MULH):
-                m.d.comb += [
-                    x_muldiv_intermediate.eq(x_rs1_value.as_signed() * x_rs2_value.as_signed()),
-                    x_muldiv_result.eq(x_muldiv_intermediate[32:64])
-                ]
-            with m.Case(Funct3Mul.MULHSU):
-                m.d.comb += [
-                    x_muldiv_intermediate.eq(x_rs1_value.as_signed() * x_rs2_value),
-                    x_muldiv_result.eq(x_muldiv_intermediate[32:64])
-                ]
-            with m.Case(Funct3Mul.MULHU):
-                m.d.comb += [
-                    x_muldiv_intermediate.eq(x_rs1_value * x_rs2_value),
-                    x_muldiv_result.eq(x_muldiv_intermediate[32:64])
-                ]
+        x_mul_a_is_signed = Signal()
+        x_mul_b_is_signed = Signal()
+        x_mul_a_low = Signal(signed(17))
+        x_mul_b_low = Signal(signed(17))
+        x_mul_a_high = Signal(signed(17))
+        x_mul_b_high = Signal(signed(17))
+        m.d.comb += [
+            x_mul_a_is_signed.eq(x_control.alu_operation.matches(Funct3Mul.MULH, Funct3Mul.MULHSU)),
+            x_mul_b_is_signed.eq(x_control.alu_operation.matches(Funct3Mul.MULH)),
+            x_mul_a_low.eq(Cat(x_rs1_value[0:16], 0)),
+            x_mul_b_low.eq(Cat(x_rs2_value[0:16], 0)),
+            x_mul_a_high.eq(Cat(x_rs1_value[16:32], x_rs1_value[31] & x_mul_a_is_signed)),
+            x_mul_b_high.eq(Cat(x_rs2_value[16:32], x_rs2_value[31] & x_mul_b_is_signed)),
+        ]
+
+        x_mul_ll = Signal(signed(34))
+        x_mul_lh = Signal(signed(34))
+        x_mul_hl = Signal(signed(34))
+        x_mul_hh = Signal(signed(34))
+        m.d.comb += [
+            x_mul_ll.eq(x_mul_a_low * x_mul_b_low),
+            x_mul_lh.eq(x_mul_a_low * x_mul_b_high),
+            x_mul_hl.eq(x_mul_a_high * x_mul_b_low),
+            x_mul_hh.eq(x_mul_a_high * x_mul_b_high),
+        ]
 
         # Determine if this is a branch
         x_branch_taken = Signal()
@@ -422,7 +424,10 @@ class RISCVCore(Elaboratable):
         m_instruction = Signal(unsigned(32))
         m_control = ControlRecord()
         m_alu_result = Signal(unsigned(32))
-        m_muldiv_result = Signal(unsigned(32))
+        m_mul_ll = Signal(signed(34))
+        m_mul_lh = Signal(signed(34))
+        m_mul_hl = Signal(signed(34))
+        m_mul_hh = Signal(signed(34))
         m_rs1_value = Signal(unsigned(32))
         m_rs2_value = Signal(unsigned(32))
         m_branch_taken = Signal()
@@ -433,7 +438,10 @@ class RISCVCore(Elaboratable):
                 m_instruction.eq(x_instruction),
                 m_control.eq(x_control),
                 m_alu_result.eq(x_alu_result),
-                m_muldiv_result.eq(x_muldiv_result),
+                m_mul_ll.eq(x_mul_ll),
+                m_mul_lh.eq(x_mul_lh),
+                m_mul_hl.eq(x_mul_hl),
+                m_mul_hh.eq(x_mul_hh),
                 m_rs1_value.eq(x_rs1_value),
                 m_rs2_value.eq(x_rs2_value),
                 m_branch_taken.eq(x_branch_taken),
@@ -504,6 +512,15 @@ class RISCVCore(Elaboratable):
             m_control.mem_enable &
             ~self.data_stream.req_ready
         )
+
+        # Handle multiplication
+        m_muldiv_intermediate = Signal(unsigned(64))
+        m_muldiv_result = Signal(unsigned(32))
+        m.d.comb += m_muldiv_intermediate.eq(m_mul_ll + (m_mul_lh << 16) + (m_mul_hl << 16) + (m_mul_hh << 32))
+        with m.If(m_control.alu_operation == Funct3Mul.MUL):
+            m.d.comb += m_muldiv_result.eq(m_muldiv_intermediate[0:32])
+        with m.Else():
+            m.d.comb += m_muldiv_result.eq(m_muldiv_intermediate[32:64])
 
         # CSR signals
         m_csr_result = Signal(unsigned(32))
